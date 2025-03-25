@@ -32,6 +32,29 @@ class Wc_Purchase_Orders_Gateway extends WC_Payment_Gateway {
 		) );
 	}
 
+	public function is_available() {
+		// Respect parent's conditions.
+		if ( ! parent::is_available() ) {
+			return false;
+		}
+	
+		// Only apply this restriction if the admin has enabled it.
+		if ( $this->get_option( 'restrict_to_specific_users' ) === 'yes' ) {
+			// Check that the user is logged in.
+			if ( ! is_user_logged_in() ) {
+				return false;
+			}
+	
+			$user = wp_get_current_user();
+			// Replace 'custom_role' with the actual role slug you wish to allow.
+			if ( ! in_array( 'wholesale_1', (array) $user->roles, true ) ) {
+				return false;
+			}
+		}
+	
+		return true;
+	}
+
 	public function init_form_fields() {
 		$this->form_fields = array(
 			'enabled'                    => array(
